@@ -464,8 +464,8 @@ a:active {
                     <li><a href="smart.html" target="_blank">智能寻医</a></a></a></li>
                     <li><a href="search.html" target="_blank">搜寻医生</a></a></li>
                     <li><a href="order.html" target="_blank">预约医生</a></li>
-                    <li><a href="login.html" target="_blank">登陆</a></li>
-                    <li><a href="registration.html" target="_blank">注册</a></li>
+                    <li><a href="/login" target="_blank">登陆</a></li>
+                    <li><a href="/register" target="_blank">注册</a></li>
                 </ul></nav>
             </header>
                 
@@ -537,8 +537,16 @@ a:active {
           
         </div>
 
-
-
+        <script>
+          function submitLoginForm() {
+              var form = document.createElement("form");
+              form.method = "POST";
+              form.action = "/login";  // Update this to the correct URL for your login route
+          
+              document.body.appendChild(form);
+              form.submit();
+          }
+          </script>
 
 </body>
 </html>
