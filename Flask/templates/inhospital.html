@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <title>预约医生</title>
   <style>
     /* Add your custom styles here */
@@ -54,9 +55,12 @@
 
   <div class="container">
     <h2>住院管理</h2>
-    <form id="inhospitalForm">
+    <form id="inhospitalForm" method="POST">
       <label for="fullName">患者姓名:</label>
       <input type="text" id="fullName" name="fullName" required>
+
+      <label for="ID">患者ID:</label>
+      <input type="text" id="ID" name="ID" required>
 
       <label for="gender">性别:</label>
       <select id="gender" name="gender" required>
@@ -67,10 +71,22 @@
       <label for="age">年龄</label>
       <input type="number" id="age" name="age" required>
 
-      <label for="number">病房号</label>
-      <input type="number" id="fullName" name="fullName" required>
+      <label for="department">选择科室:</label>
+      <select id="department" name="department" required>
+        {% for department in departments %}
+        <option value="{{ department.id }}">{{ department.name }}</option>
+        {% endfor %}
+        <!-- Add more options as needed -->
+      </select>
+      
       <label for="doctor">主治医生:</label>
-      <input type="text" id="doctor" name="doctor" required>
+      <select id="doctor" name="doctor" required>
+      </select>
+
+      <label for="ward">选择病房</label>
+      <select id="ward" name="ward" required>
+      </select>
+
 
       <label for="appointmentDate">住院日期:</label>
       <input type="date" id="appointmentDate" name="appointmentDate" required>
@@ -82,12 +98,38 @@
     </form>
   </div>
 
-  <script>
-    // Add your form validation or submission logic here
-    document.getElementById('appointmentForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      // Add your form submission logic here
-    });
-  </script>
+<!-- Include this JavaScript at the end of your HTML to dynamically update the doctors -->
+<script>
+  $(document).ready(function () {
+      $("#department").change(function () {
+          var departmentId = $(this).val();
+          $.ajax({
+              url: '/get_doctors/' + departmentId,
+              type: 'GET',
+              success: function (response) {
+                  var doctorsSelect = $("#doctor");
+                  doctorsSelect.empty();
+                  $.each(response.doctors, function (index, doctor) {
+                      doctorsSelect.append('<option value="' + doctor.id + '">' + doctor.name + '</option>');
+                  });
+              }
+          });
+          $.ajax({
+              url: '/get_beds/' + departmentId,
+              type: 'GET',
+              success: function (response) {
+                  var wardSelect = $("#ward"); 
+                  wardSelect.empty();
+                  $.each(response.beds, function (index, bed) {
+                    if (bed.bed_status == 'Available') {
+                      wardSelect.append('<option value="' + bed.id + '">' + bed.id + '</option>');
+                    }
+                  });
+              }
+          });
+      });
+  });
+</script>
+
 </body>
 </html>

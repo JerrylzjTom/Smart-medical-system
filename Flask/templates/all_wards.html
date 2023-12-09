@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Wards Information</title>
+</head>
+<body>
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    th {
+        background-color: #874caf;
+        color: white;
+    }
+    </style>
+    <div class="container">
+        <h2>All Wards Information</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ward ID</th>
+                    <th>Patient ID</th>
+                    <th>Bed Status</th>
+                    <th>Department ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ward in wards %}
+                <tr>
+                    <td>{{ ward.id }}</td>
+                    <td>{{ ward.patient_id }}</td>
+                    <td>{{ ward.bed_status }}</td>
+                    <td>{{ ward.department_id }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

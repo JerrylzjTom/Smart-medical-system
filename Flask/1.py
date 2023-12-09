@@ -26,7 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{USERNAME}:{PASSWORD}@
 
 db = SQLAlchemy()
 # 初始化db,关联flask 项目
-db.app = app    # 这一步需先设置属性，很多老的教程都缺少这一步，导致连不上数据库
+db.app = app    
 db.init_app(app)
  
 login_manager = LoginManager(app)
@@ -71,6 +71,13 @@ class Appointment(db.Model):
     doctor_id = db.Column(db.String(10), db.ForeignKey('doctor.id'), nullable=False)
 
 
+class Hospitalization(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.String(10), db.ForeignKey('user.id'), nullable=True)
+    bed_status = db.Column(db.String(20), nullable=False)  # Assuming bed status can be a string like "Occupied" or "Vacant"
+    department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=False)
+
+
 with app.app_context():
     db.create_all()
 
@@ -84,18 +91,15 @@ class users(UserMixin):
         self.id = user.id
 
     def verify_password(self, password):
-        """密码验证"""
         if self.password_hash is None:
             return False
         return check_password_hash(self.password_hash, password)
 
     def get_id(self):
-        """获取用户ID"""
         return self.id
 
     @staticmethod
     def get(user_id):
-        """根据用户ID获取用户实体，为 login_user 方法提供支持"""
         return users(User.query.get(user_id))
 
 
@@ -214,7 +218,6 @@ def generate_unique_id():
 @login_required
 def order():
     departments = Department.query.all()
-    
     if request.method == 'POST':
         patient_id = current_user.id
         phone = current_user.phone
@@ -234,7 +237,7 @@ def order():
 
         return redirect(url_for('index'))
 
-    return render_template('order.html', departments=departments, current_user=current_user)
+    return render_template('order.html', departments=departments)
 
 
 @app.route('/get_doctors/<department_id>', methods=['GET'])
@@ -242,6 +245,40 @@ def get_doctors(department_id):
     doctors = Doctor.query.filter_by(department_id=department_id).all()
     doctors_data = [{'id': doctor.id, 'name': doctor.name} for doctor in doctors]
     return jsonify({'doctors': doctors_data})
+
+
+@app.route('/get_beds/<department_id>', methods=['GET'])
+def get_beds(department_id):
+    beds = Hospitalization.query.filter_by(department_id=department_id).all()
+    beds_data = [{'id': bed.id, 'bed_status': bed.bed_status} for bed in beds]
+    return jsonify({'beds': beds_data})
+
+
+@app.route('/doctor')
+def doctor_main():
+    return render_template('doctor.html')
+
+
+@app.route("/doctor/inhospital", methods=['GET', 'POST'])
+def hospital():
+    departments = Department.query.all()
+    if request.method == 'POST':
+        patient_id = request.form['ID']
+        bed_status = 'Using'
+        id = request.form['ward']
+        result = Hospitalization.query.filter(Hospitalization.id == id).first()
+        result.patient_id = patient_id
+        result.bed_status = bed_status
+        db.session.commit()
+        print(2)
+        return redirect('/doctor')
+    return render_template('inhospital.html', departments=departments)
+
+
+@app.route('/doctor/wards', methods=['GET'])
+def view_all_wards():
+    wards = Hospitalization.query.all()
+    return render_template('all_wards.html', wards=wards)
 
 
 if __name__ == '__main__':
