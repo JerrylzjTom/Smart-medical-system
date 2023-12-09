@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>医生信息</title>
+  <style>
+    /* Add your custom styles here */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #874caf;
+      color: white;
+      padding: 15px 270px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>医生信息</h2>
+    <form id="appointmentForm">
+      <label for="fullName">姓名:</label>
+      <input type="text" id="fullName" name="fullName" required>
+
+      <label for="phone">电话:</label>
+      <input type="tel" id="phone" name="phone" required>
+
+      <label for="department">选择科室:</label>
+      <select id="doctor" name="department" required>
+        <option value="drSmith">Dr. Smith</option>
+        <option value="drJones">Dr. Jones</option>
+        <!-- Add more options as needed -->
+      </select>
+
+      <label for="appointmentDate">出生日期:</label>
+      <input type="date" id="Birthdate" name="Birthdate" required>
+
+      <label for="gender">性别:</label>
+      <select id="gender" name="gender">
+          <option value="Male">男</option></option>
+          <option value="Female">女</option>
+          <option value="Other">其他</option>
+      </select><br>
+      
+      <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required><br>
+      <button class="btn btn-default" type="submit">提交</button>
+    </form>
+  </div>
+
+  <script>
+    // Add your form validation or submission logic here
+    document.getElementById('appointmentForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      // Add your form submission logic here
+    });
+  </script>
+</body>
+</html>

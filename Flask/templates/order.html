@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <title>预约医生</title>
   <style>
     /* Add your custom styles here */
@@ -56,18 +57,16 @@
     <h2>预约医生</h2>
     <form id="appointmentForm">
       <label for="fullName">姓名:</label>
-      <input type="text" id="fullName" name="fullName" required>
-
-      <label for="email">邮箱:</label>
-      <input type="email" id="email" name="email" required>
+      <label >{{ current_user.real_name }}</label>
 
       <label for="phone">电话:</label>
-      <input type="tel" id="phone" name="phone" required>
+      <label >{{ current_user.phone }}</label>
 
       <label for="department">选择科室:</label>
-      <select id="doctor" name="department" required>
-        <option value="drSmith">Dr. Smith</option>
-        <option value="drJones">Dr. Jones</option>
+      <select id="department" name="department" required>
+        {% for department in departments %}
+        <option value="{{ department.id }}">{{ department.name }}</option>
+        {% endfor %}
         <!-- Add more options as needed -->
       </select>
       
@@ -86,12 +85,25 @@
     </form>
   </div>
 
-  <script>
-    // Add your form validation or submission logic here
-    document.getElementById('appointmentForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      // Add your form submission logic here
-    });
-  </script>
+<!-- Include this JavaScript at the end of your HTML to dynamically update the doctors -->
+<script>
+  $(document).ready(function () {
+      $("#department").change(function () {
+          var departmentId = $(this).val();
+          $.ajax({
+              url: '/get_doctors/' + departmentId,
+              type: 'GET',
+              success: function (response) {
+                  var doctorsSelect = $("#doctor");
+                  doctorsSelect.empty();
+                  $.each(response.doctors, function (index, doctor) {
+                      doctorsSelect.append('<option value="' + doctor.id + '">' + doctor.name + '</option>');
+                  });
+              }
+          });
+      });
+  });
+</script>
+
 </body>
 </html>

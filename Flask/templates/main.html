@@ -160,11 +160,11 @@ a:active {
   -webkit-border-radius: 5px;
 }
 
-.header img {
+/* .header img {
   width: 30%;
   height: auto;
   margin: 3% 0;
-}
+} */
 
 .mainContent {
   overflow: hidden;
@@ -456,16 +456,25 @@ a:active {
         
             <header class="header">
             <h1>HealthHub医疗平台</h1>
-            <img src="http://www.live-stats.me/api/sk/img/satellite.jpg">
+            <img src="../static/download.png" height="90" width="90">
                 <nav>
               
               <ul>
-                    <li class="active"><a href="main.html">首页</a></li>
+                <li class="active"><a href="/">首页</a></li>
+                {% if not current_user.is_authenticated %}
+                <!-- Display these options if the user is not logged in -->
+                <li><a href="/login" target="_blank">登录</a></li>
+                <li><a href="/register" target="_blank">注册</a></li>
+                {% else %}
+                <!-- Display these options if the user is logged in -->
+                <li><a href="/user_home" target="_blank" style="font-size: 18px; color: #ef1010;">欢迎您，{{ current_user.username }}！</a></li>
+                <!-- Add any other options for logged-in users here -->
+                {% endif %}
                     <li><a href="smart.html" target="_blank">智能寻医</a></a></a></li>
                     <li><a href="search.html" target="_blank">搜寻医生</a></a></li>
-                    <li><a href="order.html" target="_blank">预约医生</a></li>
-                    <li><a href="/login" target="_blank">登陆</a></li>
-                    <li><a href="/register" target="_blank">注册</a></li>
+                    <li><a href="/order" target="_blank">预约医生</a></li>
+                    <li><a href="{{ url_for('logout')}}" target="_blank">退出登录</a></li>
+
                 </ul></nav>
             </header>
                 
