@@ -15,6 +15,7 @@ from sqlalchemy import event
 from flask import jsonify
 app = Flask(__name__)
 
+
 HOSTNAME = "127.0.0.1"
 PORT = 3306
 USERNAME = "root"
