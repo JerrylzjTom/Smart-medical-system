@@ -55,9 +55,12 @@
 
   <div class="container">
     <h2>预约医生</h2>
-    <form id="appointmentForm">
+    <form id="appointmentForm" method="post" action="{{ url_for('order') }}">
       <label for="fullName">姓名:</label>
-      <label >{{ current_user.real_name }}</label>
+      <label >{{ current_user.username }}</label>
+
+      <label for="phone">ID:</label>
+      <label >{{ current_user.id }}</label>
 
       <label for="phone">电话:</label>
       <label >{{ current_user.phone }}</label>
