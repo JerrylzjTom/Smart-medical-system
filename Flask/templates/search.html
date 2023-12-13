@@ -3,17 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <title>搜寻医生</title>
   <style>
+    /* Add your custom styles here */
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
       margin: 0;
       padding: 0;
+      align-items: center;
+      justify-content: center;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 600px;
       margin: 20px auto;
       background-color: #fff;
       padding: 20px;
@@ -21,20 +25,14 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    h2 {
-      color: #874caf;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-
     label {
+      display: block;
       margin-bottom: 8px;
     }
 
-    input {
+    input,
+    select {
+      width: 100%;
       padding: 10px;
       margin-bottom: 16px;
       border: 1px solid #ccc;
@@ -45,23 +43,11 @@
     button {
       background-color: #874caf;
       color: white;
-      padding: 15px 20px;
+      padding: 15px 270px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: #fff;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -69,44 +55,58 @@
 
   <div class="container">
     <h2>搜寻医生</h2>
-    <form id="searchForm">
-      <label for="specialty">专业领域:</label>
-      <input type="text" id="specialty" name="specialty">
-
-      <label for="location">所在地区:</label>
-      <input type="text" id="location" name="location">
-
-      <button type="submit">搜寻</button>
+    <form id="appointmentForm" method="post" action="{{ url_for('order') }}">
+      <label for="department">选择科室:</label>
+      <select id="department" name="department" required>
+        {% for department in departments %}
+        <option value="{{ department.id }}">{{ department.name }}</option>
+        {% endfor %}
+        <!-- Add more options as needed -->
+      </select>
+      
+      <label for="doctor">选择医生:</label>
+      <select id="doctor" name="doctor" required>
+      </select>
+      <div id="'doctorDetailContainer">
+      <label for="doctordetail">医生信息：</label>
+      <select id="detail" name="detail" required>
+      </div>
     </form>
-
-    <ul id="results"></ul>
   </div>
 
-  <script>
-    document.getElementById('searchForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-
-      // Add your search logic here
-      // You can use AJAX to fetch results from the server and update the results list
-      // For simplicity, I'm just showing static results here
-      displayResults([
-        { name: 'Dr. Smith', specialty: 'Cardiology', location: 'New York' },
-        { name: 'Dr. Jones', specialty: 'Orthopedics', location: 'Los Angeles' },
-        { name: 'Dr. Wang', specialty: 'Dermatology', location: 'Beijing' }
-      ]);
-    });
-
-    function displayResults(results) {
-      const resultsList = document.getElementById('results');
-      resultsList.innerHTML = '';
-
-      results.forEach(result => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `医生姓名: ${result.name}, 专业领域: ${result.specialty}, 所在地区: ${result.location}`;
-        resultsList.appendChild(listItem);
+<!-- Include this JavaScript at the end of your HTML to dynamically update the doctors -->
+<script>
+  $(document).ready(function () {
+      $("#department").change(function () {
+          var departmentId = $(this).val();
+          $.ajax({
+              url: '/get_doctors/' + departmentId,
+              type: 'GET',
+              success: function (response) {
+                  var doctorsSelect = $("#doctor");
+                  doctorsSelect.empty();
+                  $.each(response.doctors, function (index, doctor) {
+                      doctorsSelect.append('<option value="' + doctor.id + '">' + doctor.name + '</option>');
+                  });
+              }
+          });
       });
-    }
-  </script>
+      $("#doctor").change(function () {
+            var doctorname = $(this).val();
+            $.ajax({
+                url: '/get_doctor_details/' + doctorname,
+                type: 'GET',
+                success: function (response) {
+                  var detaildisplay = $("#detail");
+                    // Update the doctor details container with the received details
+                    $.each(response.doctorDetails, function (index, detail) {
+                    detaildisplay.append('<option value="' + detail.phone + '">' + detail.phone + '</option>');
+                });
+            }
+        });
+  });
+});
+</script>
 
 </body>
 </html>

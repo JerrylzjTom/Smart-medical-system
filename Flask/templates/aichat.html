@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Assistant</title>
+    <style>
+        h1 {
+            text-align: center;
+            font-weight: bold;
+        }
+        #assistantOutput {
+            white-space: pre-line; /* 保留换行符 */
+        }
+    </style>
+</head>
+<body>
+    <h1>欢迎来到智慧医疗</h1>
+    
+    <form id="chatForm">
+        <label for="userInput">Your Message:</label>
+        <input type="text" id="userInput" name="user_input">
+        <button type="button" onclick="sendMessage()">Send</button>
+    </form>
+    
+    <!-- 添加用于显示助手回复的文本框 -->
+    <textarea id="resultOutput" readonly></textarea>
+
+    <script>
+        function sendMessage() {
+            var userInput = document.getElementById('userInput').value;
+            var formData = new FormData(document.getElementById('chatForm'));
+
+            fetch('/chat', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 获取助手的回复内容
+                var assistantResponse = data.assistant_response;
+
+                // 提取 response 中 result 中的内容
+                var resultContent = JSON.parse(assistantResponse).result;
+
+                // 将内容按换行符分割，并构建文本字符串
+                var textOutput = resultContent.split('\n').join('\n');
+
+                // 将文本输出到文本框
+                document.getElementById('resultOutput').value = textOutput;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

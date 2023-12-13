@@ -10,7 +10,8 @@ from werkzeug.security import check_password_hash
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, EqualTo
 from flask_wtf import FlaskForm
-from datetime import datetime
+import requests
+import json
 from sqlalchemy import event
 from flask import jsonify
 app = Flask(__name__)
@@ -27,7 +28,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{USERNAME}:{PASSWORD}@
 
 db = SQLAlchemy()
 # 初始化db,关联flask 项目
-db.app = app    
+db.app = app  
 db.init_app(app)
  
 login_manager = LoginManager(app)
@@ -40,6 +41,8 @@ class Department(db.Model):
 
 
 # Define Doctor model
+# The Doctor class represents a doctor in a database with attributes such as id, name, phone,
+# birthdate, gender, title, and department_id, and has a relationship with the Appointment class.
 class Doctor(db.Model):
     id = db.Column(db.String(10), primary_key=True)
     name = db.Column(db.String(50), nullable=False)
@@ -83,6 +86,8 @@ with app.app_context():
     db.create_all()
 
 
+# The `users` class is a user model that represents a user with attributes such as username, phone,
+# password hash, and id, and provides methods for verifying passwords and retrieving user information.
 class users(UserMixin):
     """用户类"""
     def __init__(self, user):
@@ -116,6 +121,13 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """
+    The `register` function handles the registration process for new users, validating the input data
+    and creating a new user in the database.
+    :return: If the request method is 'POST' and the password and confirm_password fields match, the
+    function will add a new user to the database and redirect to the login page. If the request method
+    is 'GET', the function will render the registration.html template.
+    """
     if request.method == 'POST':
         real_name = request.form['real_name']
         username = request.form['username']
@@ -156,6 +168,11 @@ class LoginForm(FlaskForm):
 
 @app.route('/login/', methods=('GET', 'POST'))  # 登录
 def login():
+    """
+    The `login` function checks if the submitted login form is valid, retrieves user information from
+    the database, and logs the user in if the username and password match.
+    :return: the rendered template 'login.html' along with the form object.
+    """
     form = LoginForm()
     if form.validate_on_submit():
         user_name = form.username.data
@@ -200,6 +217,7 @@ def save_doctor():
 @event.listens_for(Appointment, 'before_insert')
 def generate_appointment_id(mapper, connection, target):
     target.id = generate_unique_id()
+
 
 def generate_unique_id():
     # Add logic to generate a unique three-digit ID (you may use a random generator, etc.)
@@ -280,6 +298,67 @@ def hospital():
 def view_all_wards():
     wards = Hospitalization.query.all()
     return render_template('all_wards.html', wards=wards)
+
+
+@app.route('/aichat')
+@login_required
+def aichat():
+    return render_template('aichat.html')
+
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    # 获取用户输入作为对话内容
+    user_input = request.form['user_input']
+
+    # 设置文心一言 API 的 URL 和访问令牌
+    url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=24.bce7459693fedd212db6188a733f9ade.2592000.1704781892.282335-44516318"
+
+    # 构造对话内容的 JSON 格式数据
+    payload = json.dumps({
+        "messages": [
+            {
+                "role": "user",
+                "content": user_input
+            }
+        ]
+    })
+
+    # 设置请求头
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    # 发送 POST 请求
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    # 获取 API 响应的文本内容
+    assistant_response = response.text
+
+    # 将助手的回复发送到前端
+    return jsonify({'assistant_response': assistant_response})
+
+
+@app.route('/search')
+def search():
+    departments = Department.query.all()
+    return render_template('search.html', departments=departments)
+
+
+@app.route('/get_doctor_details/<doctor_name>', methods=['GET'])
+def get_doctor_details(doctor_name):
+    """
+    This function retrieves details of a doctor based on their name and returns the details in JSON
+    format.
+    :param doctor_name: The `doctor_name` parameter is a string that represents the name of the doctor
+    whose details we want to retrieve
+    :return: a JSON response containing the details of the doctor(s) with the specified name. The
+    details include the doctor's name, phone number, birthday, gender, and title.
+    """
+    doctors = Doctor.query.filter_by(name=doctor_name).all()
+    print(doctors)
+    doctor_data = [{'name': doctor.name, 'phone': doctor.phone, 'birthday': doctor.birthdate, 'gender': doctor.gender, 'title': doctor.title} for doctor in doctors]
+    return jsonify({'doctorDetails': doctor_data})
 
 
 if __name__ == '__main__':
